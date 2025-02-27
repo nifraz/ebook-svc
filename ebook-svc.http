@@ -1,0 +1,6 @@
+@ebook_svc_HostAddress = http://localhost:5041
+
+GET {{ebook_svc_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
