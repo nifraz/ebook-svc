@@ -47,7 +47,7 @@ namespace ebook_svc
         public static string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes("Your_JWT_Secret_Key"); // same key as configured in JWT options
+            var key = Encoding.UTF8.GetBytes("Your_Secret_Key_With_32_Or_More_Characters"); // same key as configured in JWT options
             var claims = new List<Claim> {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Email ?? user.UserName),
@@ -56,7 +56,7 @@ namespace ebook_svc
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

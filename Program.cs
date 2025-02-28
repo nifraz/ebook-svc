@@ -21,7 +21,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = false,
             ValidateAudience = false,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("Your_JWT_Secret_Key")), // use a secure key
+                Encoding.UTF8.GetBytes("Your_Secret_Key_With_32_Or_More_Characters")), // use a secure key
             ValidateIssuerSigningKey = true
         };
         // Accept token from custom header 'token'
@@ -72,6 +72,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 var summaries = new[]
 {

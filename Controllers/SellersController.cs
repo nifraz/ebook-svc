@@ -31,7 +31,7 @@ namespace ebook_svc.Controllers
                 IsApproved = false,
                 IsApprovalSent = false,
                 RejectionCount = 0,
-                ImageData = bookDto.ImageData,
+                ImageURL = bookDto.ImageURL,
             };
             _context.Books.Add(book);
             _context.SaveChanges();

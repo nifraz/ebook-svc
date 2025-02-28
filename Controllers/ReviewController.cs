@@ -14,7 +14,7 @@ namespace ebook_svc.Controllers
         public ReviewController(AppDbContext context) { _context = context; }
 
         // POST review/{bookId}/{orderId}
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [HttpPost("{bookId}/{orderId}")]
         public IActionResult AddReview(int bookId, int orderId, [FromBody] ReviewDto reviewDto)
         {
@@ -38,7 +38,7 @@ namespace ebook_svc.Controllers
             {
                 BookId = bookId,
                 UserId = userId,
-                Content = reviewDto.ReviewText,
+                Content = reviewDto.Review,
                 Rating = reviewDto.Rating
             };
             _context.Reviews.Add(review);
@@ -47,7 +47,7 @@ namespace ebook_svc.Controllers
         }
 
         // GET review/{bookId}
-        [Authorize]  // any logged-in user can fetch reviews (could also allow anonymous if desired)
+        //[Authorize]  // any logged-in user can fetch reviews (could also allow anonymous if desired)
         [HttpGet("{bookId}")]
         public IActionResult GetReviews(int bookId)
         {
@@ -63,7 +63,7 @@ namespace ebook_svc.Controllers
         }
 
         // POST reviewApp
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [HttpPost("~/reviewApp")]
         public IActionResult AddQuickReview([FromBody] ReviewDto reviewDto)
         {
@@ -77,14 +77,14 @@ namespace ebook_svc.Controllers
             if (lastOrderItem == null)
                 return BadRequest(new { status = 400, message = "No recent purchase found to review" });
             // Reuse AddReview logic
-            var dto = new ReviewDto { ReviewText = reviewDto.ReviewText, Rating = reviewDto.Rating };
-            return AddReview(lastOrderItem.BookId, lastOrderItem.OrderId, new ReviewDto { ReviewText = reviewDto.ReviewText, Rating = reviewDto.Rating });
+            var dto = new ReviewDto { Review = reviewDto.Review, Rating = reviewDto.Rating };
+            return AddReview(lastOrderItem.BookId, lastOrderItem.OrderId, new ReviewDto { Review = reviewDto.Review, Rating = reviewDto.Rating });
         }
     }
 
     public class ReviewDto
     {
-        public string ReviewText { get; set; }
+        public string Review { get; set; }
         public int Rating { get; set; }
     }
 

@@ -14,7 +14,7 @@ namespace ebook_svc.Controllers
         public WishlistsController(AppDbContext context) { _context = context; }
 
         // POST wishlists/addToWishlist/{bookId}
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [HttpPost("addToWishlist/{bookId}")]
         public IActionResult AddToWishlist(int bookId)
         {
@@ -35,7 +35,7 @@ namespace ebook_svc.Controllers
         }
 
         // GET wishlists/displayItems
-        [Authorize]
+        //[Authorize]
         [HttpGet("displayItems")]
         public IActionResult ViewWishlist()
         {
@@ -52,14 +52,14 @@ namespace ebook_svc.Controllers
                 price = w.Book.Price,
                 quantity = w.Book.Quantity,
                 description = w.Book.Description,
-                imageURL = w.Book.ImageData,
+                imageURL = w.Book.ImageURL,
                 isApproved = w.Book.IsApproved
             }).ToList();
             return Ok(new { status = 200, message = "Success", data = books });
         }
 
         // DELETE wishlists/removeFromWishlist/{bookId}
-        [Authorize]
+        //[Authorize]
         [HttpDelete("removeFromWishlist/{bookId}")]
         public IActionResult RemoveFromWishlist(int bookId)
         {

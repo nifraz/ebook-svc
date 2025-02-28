@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace ebook_svc.Models
 {
@@ -6,6 +7,7 @@ namespace ebook_svc.Models
     {
         public int AddressId { get; set; }
         public int UserId { get; set; }
+        [ValidateNever]
         public User User { get; set; }
 
         [Required] public string Name { get; set; }

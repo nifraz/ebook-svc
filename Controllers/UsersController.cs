@@ -35,9 +35,9 @@ namespace ebook_svc.Controllers
                 UserName = newUserDto.UserName,
                 MobileNumber = newUserDto.MobileNumber,
                 Role = newUserDto.Role,
-                Password = SecurityHelpers.HashPassword(plainPassword),
+                PasswordHash = SecurityHelpers.HashPassword(plainPassword),
                 IsVerified = true,
-                ImageData = newUserDto.ImageData,
+                ImageURL = newUserDto.ImageURL,
             };
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -45,7 +45,7 @@ namespace ebook_svc.Controllers
             // Generate an email verification token (could reuse JWT or a GUID)
             // e.g., user.VerificationToken = Guid.NewGuid().ToString(); save and email link containing it.
 
-            return StatusCode(201, new { status = 201, message = "Registration successful. Please verify your email." });
+            return StatusCode(201, new { status = 201, message = "Registration successful." });
         }
 
         // POST users/login
@@ -57,7 +57,7 @@ namespace ebook_svc.Controllers
             var user = _context.Users.FirstOrDefault(u =>
                 (u.Email == loginDto.LoginId || u.UserName == loginDto.LoginId)
                  && u.Role == loginDto.Role);
-            if (user == null || !SecurityHelpers.VerifyPassword(plainPassword, user.Password))
+            if (user == null || !SecurityHelpers.VerifyPassword(plainPassword, user.PasswordHash))
             {
                 return Unauthorized(new { status = 401, message = "Invalid credentials" });
             }
@@ -76,7 +76,7 @@ namespace ebook_svc.Controllers
                 userName = user.UserName,
                 email = user.Email,
                 mobileNumber = user.MobileNumber,
-                imageUrl = user.ImageData,
+                imageUrl = user.ImageURL,
                 userStatus = user.IsVerified  // true/false
             };
             return Ok(new { status = 200, message = "Login successful", token = token, data = data });
@@ -94,8 +94,8 @@ namespace ebook_svc.Controllers
             // Generate a reset token (GUID)
             string resetToken = Guid.NewGuid().ToString();
             // Save token and expiration (e.g., 1-hour) - for demo, store in user fields
-            user.Password = user.Password; // no change to password
-            user.ImageData = user.ImageData; // preserve (just to illustrate updating user)
+            user.PasswordHash = user.PasswordHash; // no change to password
+            user.ImageURL = user.ImageURL; // preserve (just to illustrate updating user)
                                            // (In a real app, add ResetToken and ResetTokenExpiry fields to User or a separate table)
             user.IsVerified = user.IsVerified;
             _context.SaveChanges();
@@ -118,7 +118,7 @@ namespace ebook_svc.Controllers
             }
             // Decrypt new password and update
             string newPlainPwd = SecurityHelpers.DecryptPassword(resetDto.NewPassword);
-            user.Password = SecurityHelpers.HashPassword(newPlainPwd);
+            user.PasswordHash = SecurityHelpers.HashPassword(newPlainPwd);
             // Optionally, clear the reset token so it can't be reused
             // user.StoredResetToken = null;
             _context.SaveChanges();
@@ -142,7 +142,7 @@ namespace ebook_svc.Controllers
         }
 
         // PUT users/logout
-        [Authorize]
+        //[Authorize]
         [HttpPut("logout")]
         public IActionResult Logout()
         {
@@ -152,7 +152,7 @@ namespace ebook_svc.Controllers
         }
 
         // PUT users/update (profile update)
-        [Authorize]
+        //[Authorize]
         [HttpPut("update")]
         public IActionResult UpdateProfile([FromBody] UpdateUserDto profileDto)
         {
@@ -167,7 +167,7 @@ namespace ebook_svc.Controllers
         }
 
         // POST users/uploadImage (profile or book image upload)
-        [Authorize]
+        //[Authorize]
         [HttpPost("uploadImage")]
         public IActionResult UploadImage([FromForm] IFormFile file, [FromQuery] bool isProfile)
         {
@@ -189,7 +189,7 @@ namespace ebook_svc.Controllers
                 // Update user's profile image
                 var user = _context.Users.Find(userId);
                 if (user == null) return NotFound(new { status = 404, message = "User not found" });
-                user.ImageData = relativePath;
+                user.ImageURL = relativePath;
                 _context.SaveChanges();
                 return Ok(new { status = 200, message = "Profile image uploaded", data = relativePath });
             }
@@ -197,12 +197,12 @@ namespace ebook_svc.Controllers
             {
                 // Update the latest book (by this vendor) without image
                 var book = _context.Books
-                            .Where(b => b.SellerId == userId && (b.ImageData == null || b.ImageData == ""))
+                            .Where(b => b.SellerId == userId && (b.ImageURL == null || b.ImageURL == ""))
                             .OrderByDescending(b => b.BookId)
                             .FirstOrDefault();
                 if (book != null)
                 {
-                    book.ImageData = relativePath;
+                    book.ImageURL = relativePath;
                     _context.SaveChanges();
                 }
                 return Ok(new { status = 200, message = "Book image uploaded", data = relativePath });

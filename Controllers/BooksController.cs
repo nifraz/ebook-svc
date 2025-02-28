@@ -22,7 +22,7 @@ namespace ebook_svc.Controllers
                             price = b.Price,
                             quantity = b.Quantity,
                             description = b.Description,
-                            imageURL = b.ImageData,
+                            imageURL = b.ImageURL,
                             isApproved = b.IsApproved,
                             isApprovalSent = b.IsApprovalSent,
                             rejectionCounts = b.RejectionCount
@@ -69,11 +69,11 @@ namespace ebook_svc.Controllers
             return Ok(new { status = 200, message = "Success", data = books, totalItems = total });
         }
 
-        // GET books/bookStoreApplication/getBookByAuthorName?authorName=XYZ - public search by author
-        [HttpGet("bookStoreApplication/getBookByAuthorName")]
-        public IActionResult SearchByAuthor([FromQuery] string authorName)
+        // GET books/bookStoreApplication/search?text=XYZ - public search by author
+        [HttpGet("bookStoreApplication/search")]
+        public IActionResult SearchByText([FromQuery] string text)
         {
-            var books = _context.Books.Where(b => b.IsApproved && b.AuthorName.Contains(authorName))
+            var books = _context.Books.Where(b => b.IsApproved && (b.AuthorName.Contains(text) || b.BookName.Contains(text)))
                                       .ToList();
             return Ok(new { status = 200, message = "Success", data = books });
         }

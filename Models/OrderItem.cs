@@ -1,9 +1,12 @@
-﻿namespace ebook_svc.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace ebook_svc.Models
 {
     public class OrderItem
     {
         public int OrderItemId { get; set; }
         public int OrderId { get; set; }
+        [ValidateNever]
         public Order Order { get; set; }
 
         // Book details at time of order:

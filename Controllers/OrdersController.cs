@@ -14,7 +14,7 @@ namespace ebook_svc.Controllers
         public OrdersController(AppDbContext context) { _context = context; }
 
         // POST orders/checkout
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [HttpPost("checkOut")]
         public IActionResult Checkout()
         {
@@ -64,7 +64,7 @@ namespace ebook_svc.Controllers
         }
 
         // POST orders/addMyOrder (alias for checkout)
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [HttpPost("addMyOrder")]
         public IActionResult AddMyOrder()
         {
@@ -73,7 +73,7 @@ namespace ebook_svc.Controllers
         }
 
         // GET orders/myorders
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [HttpGet("myorders")]
         public IActionResult GetMyOrders()
         {
