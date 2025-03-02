@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ebook_svc.Controllers
 {
@@ -15,6 +16,7 @@ namespace ebook_svc.Controllers
         {
             // Return only books that are approved (so customers see only approved books)
             var books = _context.Books.Where(b => b.IsApproved)
+                        .Include(b => b.Reviews)
                         .Select(b => new {
                             bookId = b.BookId,
                             bookName = b.BookName,
@@ -25,7 +27,9 @@ namespace ebook_svc.Controllers
                             imageURL = b.ImageURL,
                             isApproved = b.IsApproved,
                             isApprovalSent = b.IsApprovalSent,
-                            rejectionCounts = b.RejectionCount
+                            rejectionCounts = b.RejectionCount,
+                            averageRating = b.Reviews.Count > 0 ? b.Reviews.Average(r => r.Rating) : 0,
+                            reviewCount = b.Reviews.Count,
                         }).ToList();
             return Ok(new { status = 200, message = "Success", data = books });
         }
@@ -43,7 +47,22 @@ namespace ebook_svc.Controllers
         public IActionResult GetBooksByPriceDesc()
         {
             var books = _context.Books.Where(b => b.IsApproved)
-                            .OrderByDescending(b => b.Price).ToList();
+                            .Include(b => b.Reviews)
+                            .Select(b => new {
+                                bookId = b.BookId,
+                                bookName = b.BookName,
+                                authorName = b.AuthorName,
+                                price = b.Price,
+                                quantity = b.Quantity,
+                                description = b.Description,
+                                imageURL = b.ImageURL,
+                                isApproved = b.IsApproved,
+                                isApprovalSent = b.IsApprovalSent,
+                                rejectionCounts = b.RejectionCount,
+                                averageRating = b.Reviews.Count > 0 ? b.Reviews.Average(r => r.Rating) : 0,
+                                reviewCount = b.Reviews.Count,
+                            })
+                            .OrderByDescending(b => b.price).ToList();
             return Ok(new { status = 200, message = "Success", data = books });
         }
 
@@ -52,7 +71,22 @@ namespace ebook_svc.Controllers
         public IActionResult GetBooksByPriceAsc()
         {
             var books = _context.Books.Where(b => b.IsApproved)
-                            .OrderBy(b => b.Price).ToList();
+                            .Include(b => b.Reviews)
+                            .Select(b => new {
+                                bookId = b.BookId,
+                                bookName = b.BookName,
+                                authorName = b.AuthorName,
+                                price = b.Price,
+                                quantity = b.Quantity,
+                                description = b.Description,
+                                imageURL = b.ImageURL,
+                                isApproved = b.IsApproved,
+                                isApprovalSent = b.IsApprovalSent,
+                                rejectionCounts = b.RejectionCount,
+                                averageRating = b.Reviews.Count > 0 ? b.Reviews.Average(r => r.Rating) : 0,
+                                reviewCount = b.Reviews.Count,
+                            })
+                            .OrderBy(b => b.price).ToList();
             return Ok(new { status = 200, message = "Success", data = books });
         }
 
@@ -61,9 +95,24 @@ namespace ebook_svc.Controllers
         public IActionResult GetBookByPage(int pageNo = 1, int pageSize = 10)
         {
             if (pageNo < 1) pageNo = 1;
-            var query = _context.Books.Where(b => b.IsApproved);
+            var query = _context.Books.Where(b => b.IsApproved)
+                            .Include(b => b.Reviews)
+                            .Select(b => new {
+                                bookId = b.BookId,
+                                bookName = b.BookName,
+                                authorName = b.AuthorName,
+                                price = b.Price,
+                                quantity = b.Quantity,
+                                description = b.Description,
+                                imageURL = b.ImageURL,
+                                isApproved = b.IsApproved,
+                                isApprovalSent = b.IsApprovalSent,
+                                rejectionCounts = b.RejectionCount,
+                                averageRating = b.Reviews.Count > 0 ? b.Reviews.Average(r => r.Rating) : 0,
+                                reviewCount = b.Reviews.Count,
+                            });
             int total = query.Count();
-            var books = query.OrderBy(b => b.BookId)
+            var books = query.OrderBy(b => b.bookId)
                              .Skip((pageNo - 1) * pageSize)
                              .Take(pageSize).ToList();
             return Ok(new { status = 200, message = "Success", data = books, totalItems = total });
@@ -74,7 +123,22 @@ namespace ebook_svc.Controllers
         public IActionResult SearchByText([FromQuery] string text)
         {
             var books = _context.Books.Where(b => b.IsApproved && (b.AuthorName.Contains(text) || b.BookName.Contains(text)))
-                                      .ToList();
+                            .Include(b => b.Reviews)
+                            .Select(b => new {
+                                bookId = b.BookId,
+                                bookName = b.BookName,
+                                authorName = b.AuthorName,
+                                price = b.Price,
+                                quantity = b.Quantity,
+                                description = b.Description,
+                                imageURL = b.ImageURL,
+                                isApproved = b.IsApproved,
+                                isApprovalSent = b.IsApprovalSent,
+                                rejectionCounts = b.RejectionCount,
+                                averageRating = b.Reviews.Count > 0 ? b.Reviews.Average(r => r.Rating) : 0,
+                                reviewCount = b.Reviews.Count,
+                            })
+                            .ToList();
             return Ok(new { status = 200, message = "Success", data = books });
         }
     }

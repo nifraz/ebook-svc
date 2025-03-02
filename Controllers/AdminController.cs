@@ -38,7 +38,12 @@ namespace ebook_svc.Controllers
                             price = b.Price,
                             quantity = b.Quantity,
                             description = b.Description,
-                            rejectionCounts = b.RejectionCount
+                            rejectionCounts = b.RejectionCount,
+                            imageURL = b.ImageURL,
+                            isApproved = b.IsApproved,
+                            isApprovalSent = b.IsApprovalSent,
+                            //averageRating = b.Reviews.Count > 0 ? b.Reviews.Average(r => r.Rating) : 0,
+                            //reviewCount = b.Reviews.Count,
                         }).ToList();
             return Ok(new { status = 200, message = "Success", data = books });
         }
@@ -46,7 +51,7 @@ namespace ebook_svc.Controllers
         // PUT admin/bookVerification/{bookId}/{sellerId}/{verification}
         [HttpPut("bookVerification/{bookId}/{sellerId}/{verification}")]
         public IActionResult VerifyBook(int bookId, int sellerId, string verification,
-                                        [FromBody] string description = "")
+                                        [FromBody] Dictionary<string, string> payload)
         {
             bool approve = verification.ToLower() == "true";
             var book = _context.Books.FirstOrDefault(b => b.BookId == bookId && b.SellerId == sellerId);
@@ -55,14 +60,16 @@ namespace ebook_svc.Controllers
             {
                 book.IsApproved = true;
                 book.IsApprovalSent = false;
+                book.IsRejected = false;
                 // Optionally, reset rejection count or leave it as history
             }
             else
             {
                 book.IsApproved = false;
                 book.IsApprovalSent = false;
+                book.IsRejected = true;
                 book.RejectionCount += 1;
-                // Could log the description (reason) somewhere, e.g., Book.LastRejectionReason = description
+                book.LastRejectionReason = payload.TryGetValue("reason", out var reason) && !string.IsNullOrWhiteSpace(reason) ? reason : null;
             }
             _context.SaveChanges();
             string msg = approve ? "Book approved" : "Book rejected";

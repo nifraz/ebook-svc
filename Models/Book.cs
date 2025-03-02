@@ -27,8 +27,10 @@ namespace ebook_svc.Models
         public string? ImageURL { get; set; }
 
         public bool IsApproved { get; set; } = false;       // approved by admin?
+        public bool IsRejected { get; set; } = false;       // approved by admin?
         public bool IsApprovalSent { get; set; } = false;   // vendor requested approval?
         public int RejectionCount { get; set; } = 0;        // times admin rejected
+        public string? LastRejectionReason { get; internal set; }
 
         // Foreign key to seller (vendor user)
         public int SellerId { get; set; }
